@@ -1,5 +1,4 @@
 # slack-test
 slack-test repository
 
-GPT는 과연 존경을 받을것인가에 댛여
-sadfsafasdfasfasfa
+한창 gpt를 믿고싶은 나이
