@@ -52,8 +52,11 @@ jobs:
 
       - name: Get the JAR file name
         id: jar-name
-        run: echo "JAR_NAME=$(basename ${{ env.JAR_FILE }})" >> $GITHUB_ENV
-
+        run: |
+          JAR_FILE=${{ env.JAR_FILE }}
+          JAR_NAME=$(basename "$JAR_FILE")
+          echo "JAR_NAME=$JAR_NAME" >> $GITHUB_ENV
+          
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
