@@ -35,9 +35,9 @@ jobs:
         run: ./gradlew build -x test
         shell: bash
         
-      - name: Make zip file
-        run: zip -r ./$GITHUB_SHA.zip .
-        shell: bash
+      - name: Find the JAR file
+        id: jar-file
+        run: echo "::set-output name=jar-file::$(find build/libs -name '*.jar')"
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -52,4 +52,4 @@ jobs:
       
       # S3에 업로드
       - name: Upload to S3
-        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/$PROJECT_NAME/$GITHUB_SHA.zip
+        run: aws s3 cp --region ap-northeast-2 ${{ steps.jar-file.outputs.jar-file }} s3://$S3_BUCKET_NAME/$PROJECT_NAME/
