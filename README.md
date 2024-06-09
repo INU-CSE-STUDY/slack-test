@@ -1,7 +1,4 @@
 # slack-test
 slack-test repository
-DokiDoki
 
-
-ㄸㄲㄸㄲ
-ㅇㄴㅁㅇㅁㄴㅁㄴㅇ
+나는 이거 원큐에 되면 김진 삭발 시킴
