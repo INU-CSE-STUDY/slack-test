@@ -25,3 +25,45 @@ jobs:
       
     - name: 프로젝트 빌드
       run: ./gradlew build -x test
+
+    - name: Close PR, If test fail
+      if: ${{ failure() }}
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ github.TOKEN }}
+        script: |
+          const pull_number = ${{ github.event.pull_request.number }}
+          const updated_title = `[TEST FAIL] ${{ github.event.pull_request.title }}`
+           await github.rest.pulls.createReview({
+             owner: context.repo.owner,
+             repo: context.repo.repo,
+             pull_number: pull_number,
+             body: '테스트에 실패했습니다.',
+             event: 'REQUEST_CHANGES'
+           })
+           await github.rest.pulls.update({
+             owner: context.repo.owner,
+             repo: context.repo.repo,
+             pull_number: pull_number,
+             title: updated_title,
+             state: 'closed'
+           })
+
+    - name: Approve PR, If test passes # 테스트 통과시, PR 머지
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ github.TOKEN }}
+        script: |
+          const pull_number = ${{ github.event.pull_request.number }}
+          await github.rest.pulls.createReview({
+           owner: context.repo.owner,
+            repo: context.repo.repo,
+              pull_number: pull_number,
+              body: '테스트에 통과해 main 브랜치로 자동 머지합니다.',
+              event: 'REQUEST_CHANGES'
+            })
+            await github.rest.pulls.merge({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pull_number,
+            })
