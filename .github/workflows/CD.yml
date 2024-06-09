@@ -18,6 +18,7 @@ env:
 # workflow는 한개 이상의 job을 가지며, 각 job은 여러 step에 따라 단계를 나눌 수 있습니다.
 jobs:
   build:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: CD
     # 해당 jobs에서 아래의 steps들이 어떠한 환경에서 실행될 것인지를 지정합니다.
     runs-on: ubuntu-latest
