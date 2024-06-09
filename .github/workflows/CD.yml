@@ -48,7 +48,11 @@ jobs:
         
       - name: Find the JAR file
         id: jar-file
-        run: echo "::set-output name=jar-file::$(find build/libs -name '*.jar')"
+        run: echo "JAR_FILE=$(find build/libs -name '*.jar')" >> $GITHUB_ENV
+
+      - name: Get the JAR file name
+        id: jar-name
+        run: echo "JAR_NAME=$(basename ${{ env.JAR_FILE }})" >> $GITHUB_ENV
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -63,12 +67,13 @@ jobs:
       
       # S3에 업로드
       - name: Upload to S3
-        run: aws s3 cp --region ap-northeast-2 ${{ steps.jar-file.outputs.jar-file }} s3://$S3_BUCKET_NAME/$PROJECT_NAME/
+        run: aws s3 cp --region ap-northeast-2 ${{ env.JAR_FILE }} s3://$S3_BUCKET_NAME/$PROJECT_NAME/${{ env.JAR_NAME }}
 
       # CodeDeploy 배포 요청
       - name: Code Deploy
-        run: aws deploy create-deployment \
-              --application-name $CODE_DEPLOY_APP_NAME \
-              --deployment-config-name CodeDeployDefault.OneAtATime \
-              --deployment-group-name $DEPLOYMENT_GROUP_NAME \
-              --s3-location bucket=$S3_BUCKET_NAME,bundleType=jar,key=$PROJECT_NAME/${{ steps.jar-file.outputs.jar-file | basename }}
+        run: |
+          aws deploy create-deployment \
+            --application-name $CODE_DEPLOY_APP_NAME \
+            --deployment-config-name CodeDeployDefault.OneAtATime \
+            --deployment-group-name $DEPLOYMENT_GROUP_NAME \
+            --s3-location bucket=$S3_BUCKET_NAME,bundleType=jar,key=$PROJECT_NAME/${{ env.JAR_NAME }}
