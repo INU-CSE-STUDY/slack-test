@@ -67,8 +67,7 @@ jobs:
 
       # CodeDeploy 배포 요청
       - name: Code Deploy
-        run: |
-          aws deploy create-deployment \
+        run: aws deploy create-deployment \
               --application-name $CODE_DEPLOY_APP_NAME \
               --deployment-config-name CodeDeployDefault.OneAtATime \
               --deployment-group-name $DEPLOYMENT_GROUP_NAME \
