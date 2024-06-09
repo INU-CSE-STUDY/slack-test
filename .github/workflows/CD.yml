@@ -1,19 +1,13 @@
 # workflow의 이름
 name: CD
-
 # 해당 workflow가 언제 실행될 것인지에 대한 트리거를 지정
 on:
-  workflow_run:
-    workflows: [ CI ]
-    types:
-      - completed
-
+  push:
+    branches: [ main ] # main branch로 push 될 때 실행됩니다.
 # 해당 yml 내에서 사용할 key - value
 env:
   S3_BUCKET_NAME: pbbs-bucket
   PROJECT_NAME: cicdtest
-  CODE_DEPLOY_APP_NAME: codedeploy-app
-  DEPLOYMENT_GROUP_NAME: app-deployment-group
   
 # workflow는 한개 이상의 job을 가지며, 각 job은 여러 step에 따라 단계를 나눌 수 있습니다.
 jobs:
@@ -21,7 +15,6 @@ jobs:
     name: CD
     # 해당 jobs에서 아래의 steps들이 어떠한 환경에서 실행될 것인지를 지정합니다.
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
      # 작업에서 액세스할 수 있도록 $GITHUB_WORKSPACE에서 저장소를 체크아웃합니다.
       - uses: actions/checkout@v3
@@ -36,7 +29,6 @@ jobs:
           mkdir src/main/resources
           touch src/main/resources/application.yml
           echo "${{ secrets.APPLICATION_YML }}" > src/main/resources/application.yml
-
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
         shell: bash
@@ -47,15 +39,7 @@ jobs:
         
       - name: Find the JAR file
         id: jar-file
-        run: echo "JAR_FILE=$(find build/libs -name '*.jar')" >> $GITHUB_ENV
-
-      - name: Get the JAR file name
-        id: jar-name
-        run: |
-          JAR_FILE=${{ env.JAR_FILE }}
-          JAR_NAME=$(basename "$JAR_FILE")
-          echo "JAR_NAME=$JAR_NAME" >> $GITHUB_ENV
-          
+        run: echo "::set-output name=jar-file::$(find build/libs -name '*.jar')"
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -69,13 +53,4 @@ jobs:
       
       # S3에 업로드
       - name: Upload to S3
-        run: aws s3 cp --region ap-northeast-2 ${{ env.JAR_FILE }} s3://$S3_BUCKET_NAME/$PROJECT_NAME/${{ env.JAR_NAME }}
-
-      # CodeDeploy 배포 요청
-      - name: Code Deploy
-        run: |
-          aws deploy create-deployment \
-            --application-name $CODE_DEPLOY_APP_NAME \
-            --deployment-config-name CodeDeployDefault.OneAtATime \
-            --deployment-group-name $DEPLOYMENT_GROUP_NAME \
-            --s3-location bucket=$S3_BUCKET_NAME,bundleType=jar,key=$PROJECT_NAME/${{ env.JAR_NAME }}
+        run: aws s3 cp --region ap-northeast-2 ${{ steps.jar-file.outputs.jar-file }} s3://$S3_BUCKET_NAME/$PROJECT_NAME/
