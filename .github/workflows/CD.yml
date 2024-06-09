@@ -5,6 +5,8 @@ name: CD
 on:
   workflow_run:
     workflows: ["CI"]
+    types:
+      - completed
 
 # 해당 yml 내에서 사용할 key - value
 env:
