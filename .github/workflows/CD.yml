@@ -12,6 +12,8 @@ on:
 env:
   S3_BUCKET_NAME: pbbs-bucket
   PROJECT_NAME: cicdtest
+  CODE_DEPLOY_APP_NAME: codedeploy-app
+  DEPLOYMENT_GROUP_NAME: app-deployment-group
   
 # workflow는 한개 이상의 job을 가지며, 각 job은 여러 step에 따라 단계를 나눌 수 있습니다.
 jobs:
@@ -61,3 +63,12 @@ jobs:
       # S3에 업로드
       - name: Upload to S3
         run: aws s3 cp --region ap-northeast-2 ${{ steps.jar-file.outputs.jar-file }} s3://$S3_BUCKET_NAME/$PROJECT_NAME/
+
+      # CodeDeploy 배포 요청
+      - name: Code Deploy
+        run: |
+          aws deploy create-deployment \
+              --application-name $CODE_DEPLOY_APP_NAME \
+              --deployment-config-name CodeDeployDefault.OneAtATime \
+              --deployment-group-name $DEPLOYMENT_GROUP_NAME \
+              --s3-location bucket=$S3_BUCKET_NAME,bundleType=jar,key=$PROJECT_NAME/${{ steps.jar-file.outputs.jar-file | basename }}
