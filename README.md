@@ -6,3 +6,5 @@ slack-test repository
 난 근데 이제 긴팔만 입음
 
 제발 되어라
+
+ㅜㅜ
