@@ -1,4 +1,4 @@
 # slack-test
 slack-test repository
 
-안되면 희권이 탓
+배포를 왜 plain으로 함? 개짱나넹
