@@ -27,16 +27,17 @@ jobs:
     - name: gradlew에 실행 권한 부여
       run: chmod +x gradlew
     
+    
     - name: Cache Gradle
       uses: actions/cache@v2
       with:
         path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          ./gradle-cache
+
+        key: ${{ github.repository }}-gradle-${{ hashFiles('**/*.gradle*') }}
         restore-keys: |
-          ${{ runner.os }}-gradle-75575ec05844500e25c08009489e85922bae5bdaf83d9c80c828e56d1733b5ea
-      
+          ${{ github.repository }}-gradle-
+          
     - name: 프로젝트 build
       run : ./gradlew clean build
       
@@ -89,12 +90,11 @@ jobs:
       uses: actions/cache@v2
       with:
         path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          ./gradle-cache
+
+        key: ${{ github.repository }}-gradle-${{ hashFiles('**/*.gradle*') }}
         restore-keys: |
-          ${{ runner.os }}-gradle-75575ec05844500e25c08009489e85922bae5bdaf83d9c80c828e56d1733b5ea
-      
+          ${{ github.repository }}-gradle-
 
     - name: 프로젝트 test
       run: ./gradlew --info test
