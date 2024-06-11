@@ -39,7 +39,7 @@ jobs:
           ${{ github.repository }}-gradle-
           
     - name: 프로젝트 build
-      run : ./gradlew build -x test
+      run : ./gradlew build -x test --no-daemon
       
     - name: build 실패 PR 닫기
       if: ${{ failure() }}
