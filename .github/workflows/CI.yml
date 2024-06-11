@@ -16,7 +16,6 @@ jobs:
       with:
         java-version: '17'
         distribution: 'zulu'
-        cache: gradle
         
     - name: application.yml 생성
       run: |
@@ -31,12 +30,12 @@ jobs:
     - name: Cache Gradle
       uses: actions/cache@v2
       with:
-        path: |
-          ./gradle-cache
-
-        key: ${{ github.repository }}-gradle-${{ hashFiles('**/*.gradle*') }}
+        path: |  
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
         restore-keys: |
-          ${{ github.repository }}-gradle-
+          ${{ runner.os }}-gradle-
           
     - name: 프로젝트 build
       run : ./gradlew build -x test --no-daemon
@@ -75,7 +74,6 @@ jobs:
       with:
         java-version: '17'
         distribution: 'zulu'
-        cache: gradle
         
     - name: application.yml 생성
       run: |
@@ -89,12 +87,12 @@ jobs:
     - name: Cache Gradle
       uses: actions/cache@v2
       with:
-        path: |
-          ./gradle-cache
-
-        key: ${{ github.repository }}-gradle-${{ hashFiles('**/*.gradle*') }}
+        path: |  
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
         restore-keys: |
-          ${{ github.repository }}-gradle-
+          ${{ runner.os }}-gradle-
 
     - name: 프로젝트 test
       run: ./gradlew --info test
